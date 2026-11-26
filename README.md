@@ -4,8 +4,8 @@
 
 ## 교실에서 시험하기
 
-1. 교사 PC에 [Node.js](https://nodejs.org/) 22 이상을 설치합니다. 이 저장소의 **Code → Download ZIP**으로 받은 파일을 풀고, 풀린 폴더에서 터미널을 엽니다. Git을 사용한다면 `git clone https://github.com/fung123-ksjeil/1112unit.git`으로 내려받아도 됩니다.
-2. 터미널에서 `node server.js`를 실행하고 열린 상태로 둡니다. 별도 패키지 설치는 필요 없습니다. 교사 PC에서 `http://localhost:3000`을 열고 **교사 · 방 만들기**를 선택합니다.
+1. 교사 PC에 [Node.js](https://nodejs.org/) 22 이상을 설치합니다. 이 저장소의 **Code → Download ZIP**으로 받은 파일을 풉니다. Git을 사용한다면 `git clone https://github.com/fung123-ksjeil/1112unit.git`으로 내려받아도 됩니다.
+2. Windows에서는 압축을 푼 폴더의 **Start-Atlas.cmd**를 더블클릭하고 실행 창을 열어 둡니다. 직접 실행하려면 해당 폴더의 터미널에서 `node server.js`를 입력합니다. 별도 패키지 설치는 필요 없습니다. 교사 PC에서 `http://localhost:3000`을 열고 **교사 · 방 만들기**를 선택합니다.
 3. 교사 PC의 교실 네트워크 IPv4 주소를 확인합니다. Windows에서는 `ipconfig`를 실행하고 연결된 Wi-Fi 또는 이더넷의 **IPv4 주소**를 확인합니다. 학생이 교사와 통신할 수 있는 교실 네트워크에서 브라우저로 `http://교사PC의IPv4주소:3000`을 열고, 교사가 알려준 6자리 코드를 입력합니다. 교사 1명과 학생 최대 49명이 접속할 수 있습니다.
 4. 학생은 지도에서 아바타를 움직이고, 옆의 **채팅**으로 풀이 근거를 나눌 수 있습니다. 각 학생이 세 미션의 문제를 직접 풀면 **탈출하기**가 열립니다. **진행판**에는 같은 방의 미션 완료 기록이 표시됩니다.
 
