@@ -2,23 +2,32 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>아틀라스 · 지리 탐험실</title>
+<title>아틀라스 · 탈출 작전</title>
 <link rel="stylesheet" href="/style.css">
 <script type="module" src="/app.js"></script>
 </head>
 <body>
-<header class="top"><div class="brand"><span class="logo">✧</span><div><strong>ATLAS<span class="accent">.</span></strong><small>지리 탐험실</small></div></div><div class="top-meta"><span id="connection"><i></i> 입장 대기</span><button id="fullscreen" class="subtle" type="button" aria-label="전체화면">⛶ <span>전체화면</span></button></div></header>
-<main>
-<section class="intro"><div><p class="eyebrow">중등 사회 ② <span> / </span> 11단원</p><h1>세계 속의 우리나라<span class="accent">.</span></h1><p class="lead">탐험 지도를 열고, 세 가지 미션을 해결해 기지에서 탈출하세요.</p></div><div class="room-actions"><button id="room-code" class="subtle" hidden></button><button id="join">코드로 입장 <span>↗</span></button><button id="create" class="subtle">교사 · 방 만들기</button><button id="leave" hidden>탈출하기 ↗</button></div></section>
-<div class="layout">
-<section class="card world"><div class="card-head"><h2><span class="accent">⌖</span> 탐험 지도</h2><span id="player-count" class="pill">0명 접속 중</span></div>
-<div id="map" class="map" tabindex="0" aria-label="탐험 지도. 클릭 또는 방향키로 이동"><canvas id="terrain" width="1200" height="760" aria-hidden="true"></canvas><div class="map-label">ATLAS FIELD MAP</div><div class="compass">N<br>⌃</div><div id="markers"></div><div id="avatars"></div><div id="map-hint" class="map-hint">⌁ 지도에서 미션 위치를 확인하세요</div></div>
-<div class="world-foot"><span>⌨ 클릭 · 방향키 · WASD 이동</span><span><i></i> 미션 지점</span></div></section>
-<aside class="sidebar"><section class="card missions"><div class="card-head"><h2>나의 미션</h2><span id="progress" class="accent">0 / 3</span></div><div id="mission-list"></div></section>
-<section class="card social"><div class="tabs" role="group" aria-label="진행판 및 채팅"><button class="active" data-tab="activity">진행판</button><button data-tab="chat">채팅</button><button data-tab="players">탐험대</button></div><div id="feed" aria-live="polite"></div><form id="chat" hidden><input aria-label="채팅 메시지" maxlength="300" placeholder="친구에게 메시지 보내기"><button aria-label="전송">↑</button></form></section></aside>
-</div>
-<footer>ATLAS <span>·</span> 비상교육 중등 사회 ② 교과서 198–212쪽 기반</footer>
+<main id="map" tabindex="0" aria-label="탐험 지도. 방향키 또는 WASD로 이동하고 E로 조사">
+  <canvas id="terrain" aria-hidden="true"></canvas><div id="markers"></div><div id="avatars"></div>
 </main>
+<header class="top">
+  <div class="brand"><span class="logo">✧</span><div><strong>ATLAS<span class="accent">.</span></strong><small>탈출 작전</small></div></div>
+  <div class="top-meta"><span id="connection">입장 대기</span><button id="fullscreen" class="subtle" aria-label="전체화면">⛶ <span>전체화면</span></button><button id="toggle-panel" class="subtle" hidden aria-controls="panel" aria-expanded="true">진행판</button></div>
+</header>
+<section id="welcome" class="welcome">
+  <div class="eyebrow">현장 기록 · 03구역 폐쇄</div>
+  <h1>잠긴 기지<br>탈출 작전<span class="accent">.</span></h1>
+  <p>기지의 통신이 끊겼습니다. 탐험대에 합류해 흩어진 단서를 모으고, 세 구역의 잠금을 해제하세요.</p>
+  <div class="room-actions"><button id="join">코드로 입장 ↗</button><button id="create" class="subtle">교사 · 방 만들기</button></div>
+</section>
+<aside id="panel" class="panel" hidden>
+  <div class="panel-head"><button id="room-code" class="subtle"></button><span id="player-count">0명</span></div>
+  <div class="tabs" role="group" aria-label="탐험 정보"><button class="active" data-tab="journal">수첩</button><button data-tab="activity">진행판</button><button data-tab="chat">채팅</button><button data-tab="players">탐험대</button></div>
+  <div id="feed" aria-live="polite"></div>
+  <form id="chat" hidden><input aria-label="채팅 메시지" maxlength="300" placeholder="친구에게 메시지 보내기"><button aria-label="전송">↑</button></form>
+</aside>
+<section id="navigator" hidden aria-label="미니맵"><div><strong>탐험 지도</strong><span>북 ↑</span></div><canvas id="minimap" width="208" height="150"></canvas></section>
+<div id="controls" hidden><button id="interact" hidden></button><span>방향키 · WASD 이동 &nbsp; <b>E</b> 조사</span></div>
 <dialog id="dialog"><div class="dialog-inner"><button id="close" class="subtle close" aria-label="닫기">×</button><div id="dialog-body"></div></div></dialog>
 <div id="toast" hidden role="status"></div>
 </body></html>
