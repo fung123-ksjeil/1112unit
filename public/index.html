@@ -12,7 +12,7 @@
 </main>
 <header class="top">
   <div class="brand"><span class="logo">✧</span><div><strong>ATLAS<span class="accent">.</span></strong><small>탈출 작전</small></div></div>
-  <div class="top-meta"><span id="connection">입장 대기</span><button id="fullscreen" class="subtle" aria-label="전체화면">⛶ <span>전체화면</span></button><button id="toggle-panel" class="subtle" hidden aria-controls="panel" aria-expanded="true">진행판</button></div>
+  <div class="top-meta"><span id="connection">입장 대기</span><button id="fullscreen" class="subtle" aria-label="전체화면">⛶ <span>전체화면</span></button><button id="toggle-panel" class="subtle" hidden aria-controls="panel" aria-expanded="true">작전 패널</button></div>
 </header>
 <section id="welcome" class="welcome">
   <div class="eyebrow">현장 기록 · 03구역 폐쇄</div>
@@ -20,9 +20,13 @@
   <p>기지의 통신이 끊겼습니다. 탐험대에 합류해 흩어진 단서를 모으고, 세 구역의 잠금을 해제하세요.</p>
   <div class="room-actions"><button id="join">코드로 입장 ↗</button><button id="create" class="subtle">교사 · 방 만들기</button></div>
 </section>
-<aside id="panel" class="panel" hidden>
+<aside id="panel" class="panel" aria-label="작전 패널" hidden>
   <div class="panel-head"><button id="room-code" class="subtle"></button><span id="player-count">0명</span></div>
-  <div class="tabs" role="group" aria-label="탐험 정보"><button class="active" data-tab="journal">수첩</button><button data-tab="activity">진행판</button><button data-tab="chat">채팅</button><button data-tab="players">탐험대</button></div>
+  <section class="progress-head" aria-labelledby="mission-heading">
+    <div class="progress-heading"><h2 id="mission-heading">나의 미션</h2><span id="mission-total" aria-live="polite">0 / 3 완료</span></div>
+    <div id="mission-lights" class="mission-lights" aria-hidden="true"></div>
+  </section>
+  <div class="tabs" role="group" aria-label="탐험 정보"><button class="active" data-tab="missions">미션</button><button data-tab="journal">수첩</button><button data-tab="activity">진행판</button><button data-tab="chat">채팅</button><button data-tab="players">탐험대</button></div>
   <div id="feed" aria-live="polite"></div>
   <form id="chat" hidden><input aria-label="채팅 메시지" maxlength="300" placeholder="친구에게 메시지 보내기"><button aria-label="전송">↑</button></form>
 </aside>

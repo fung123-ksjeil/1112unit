@@ -23,21 +23,21 @@ export function makeTerrain(missions) {
     if (border) {g.strokeStyle=border; g.lineWidth=width; g.lineJoin='round'; g.stroke();}
   }
   const base = g.createLinearGradient(0,0,world.width,world.height);
-  base.addColorStop(0,'#2e4750'); base.addColorStop(.36,'#344f46'); base.addColorStop(.7,'#355744'); base.addColorStop(1,'#5e583c');
+  base.addColorStop(0,'#30484d'); base.addColorStop(.36,'#374e45'); base.addColorStop(.7,'#3a5449'); base.addColorStop(1,'#565644');
   g.fillStyle=base; g.fillRect(0,0,world.width,world.height);
   const coast = [[-40,-40],[405,-40],[307,302],[437,488],[331,694],[365,833],[126,1033],[95,1198],[220,1280],[187,1470],[350,1650],[144,1800],[116,1932],[194,2070],[106,2195],[247,2400],[158,2650],[-40,2650]];
-  region(coast,'#224e55','#73775d',34);
-  region(coast,'#23545c','#4b7b78',12);
+  region(coast,'#224e55','#68785f',34);
+  region(coast,'#285257','#4f7472',12);
   const east = [[3600,570],[3460,635],[3510,795],[3450,958],[3548,1080],[3494,1290],[3600,1380]];
-  region(east,'#385b50','#71745a',17);
+  region(east,'#385b50','#65705b',17);
   const mountains = [[590,0],[690,314],[1000,454],[1300,383],[1650,498],[1960,370],[2250,516],[2510,418],[2770,506],[3080,347],[3180,0]];
   region(mountains,'#3c5150','#536464',13);
 
-  for (let i=0;i<8500;i++) {
+  for (let i=0;i<4300;i++) {
     const x=rng()*world.width, y=rng()*world.height;
-    disc(x,y,1+rng()*5,1+rng()*2,rng()>.47?'#e5eac118':'#0b22292a');
+    disc(x,y,1+rng()*5,1+rng()*2,rng()>.47?'#dce5ce12':'#17292125');
   }
-  for (let i=0;i<135;i++) {
+  for (let i=0;i<90;i++) {
     const y=rng()*world.height, x=rng()*90;
     path([[x,y],[x+12,y+2],[x+34,y]],'#8fcdc331',2);
   }
@@ -45,7 +45,7 @@ export function makeTerrain(missions) {
     const x=660+i*138, y=80+rng()*295, w=90+rng()*150, h=65+rng()*130;
     region([[x-w,y+h*.6],[x-w*.38,y-h*.25],[x,y-h],[x+w*.44,y-h*.15],[x+w,y+h*.55],[x+w*.24,y+h*.8]],'#2a3e42','#536766',3);
     region([[x,y-h],[x+w*.44,y-h*.15],[x+w,y+h*.55],[x+w*.05,y+h*.24]],'#536567');
-    region([[x-w*.22,y-h*.49],[x,y-h],[x+w*.3,y-h*.39],[x+w*.07,y-h*.42]],'#a1ad9e');
+    region([[x-w*.22,y-h*.49],[x,y-h],[x+w*.3,y-h*.39],[x+w*.07,y-h*.42]],'#88998e');
   }
 
   const hubs = missions.map(({x,y})=>[x,y]);
@@ -57,17 +57,17 @@ export function makeTerrain(missions) {
     [[spawn.x,spawn.y],[2050,2110],[2260,2060],[2540,2110],[2880,2085]]
   ];
   for (const line of paths) {
-    path(line,'#252f2e',39); path(line,'#777355',29); path(line,'#aea47b79',2,[12,12]);
+    path(line,'#293b37',39); path(line,'#74765e',29); path(line,'#bcb89b83',2,[12,12]);
   }
   const stations = missions.flatMap(mission => [mission,...mission.consoles, ...mission.sites, ...mission.sites.map(site=>site.note)]);
   for (const point of stations) {
     if (!hubs.some(([x,y])=>point.x===x&&point.y===y)) {
       const [x,y]=paths.flat().reduce((nearest,p)=>Math.hypot(p[0]-point.x,p[1]-point.y)<Math.hypot(nearest[0]-point.x,nearest[1]-point.y)?p:nearest);
-      path([[x,y],[point.x,point.y]],'#8d876445',10,[3,9]);
+      path([[x,y],[point.x,point.y]],'#a2a28058',10,[3,9]);
     }
   }
 
-  for (let i=0;i<950;i++) {
+  for (let i=0;i<750;i++) {
     const x=165+rng()*3310, y=370+rng()*2180;
     if (x<450&&y<850 || stations.some(p=>Math.hypot(p.x-x,p.y-y)<92) || Math.hypot(x-1800,y-2250)<290) continue;
     const trail = paths.some(line => line.slice(1).some(([bx,by],i)=>{
@@ -78,20 +78,20 @@ export function makeTerrain(missions) {
     const r=8+rng()*20;
     if (x>2550&&y>1110) {
       disc(x+5,y+3,r,r*.5,'#242f2a55');
-      disc(x,y,r*.65,r*.53,rng()>.5?'#818956':'#526d47');
-      for(let j=0;j<4;j++) disc(x+(rng()-.5)*r,y+(rng()-.5)*r*.5,3,3,'#ada66f');
+      disc(x,y,r*.65,r*.53,rng()>.5?'#727c59':'#526d47');
+      for(let j=0;j<4;j++) disc(x+(rng()-.5)*r,y+(rng()-.5)*r*.5,3,3,'#929477');
     } else {
-      disc(x+5,y+7,r*1.18,r*.6,'#15262272');
+      disc(x+5,y+7,r*1.18,r*.6,'#1d322e82');
       g.fillStyle='#5e664b'; g.fillRect(x-3,y-8,6,17);
-      region([[x-r,y],[x,y-r*1.55],[x+r,y],[x,y+r*.35]],rng()>.48?'#395c49':'#294d41');
-      region([[x,y-r*1.55],[x+r,y],[x,y+r*.35]],'#54816365');
+      region([[x-r,y],[x,y-r*1.55],[x+r,y],[x,y+r*.35]],rng()>.48?'#3e5b4d':'#345145');
+      region([[x,y-r*1.55],[x+r,y],[x,y+r*.35]],'#6a87745c');
     }
   }
 
   function deck(x,y,color,large=false) {
     const width=large?174:80, height=large?110:58;
     g.fillStyle='#182825';g.fillRect(x-width/2+9,y-height/2+14,width,height);
-    g.fillStyle='#444e43';g.fillRect(x-width/2,y-height/2,width,height);
+    g.fillStyle='#4a564c';g.fillRect(x-width/2,y-height/2,width,height);
     g.fillStyle=color;g.globalAlpha=.55;g.fillRect(x-width/2,y-height/2,width,7);
     g.globalAlpha=1;
     for(let j=-width/2+9;j<width/2;j+=18) path([[x+j,y-height/2+10],[x+j,y+height/2-4]],'#99a58d41',2);
@@ -112,7 +112,7 @@ export function makeTerrain(missions) {
         for(let d=-58;d<60;d+=20) path([[x+d,y-20],[x+d,y+25]],'#8daa9980',3);
       }
       deck(x,y,color);
-      disc(site.note.x,site.note.y,22,12,'#c4af7477');
+      disc(site.note.x,site.note.y,22,12,'#b9ad7877');
     }
     for (const route of mission.consoles) deck(route.x,route.y,color);
   }

@@ -33,7 +33,7 @@ let movement;
 let movedAt = 0;
 let journal = [];
 let state = {players:[],messages:[],activity:[]};
-let tab = 'journal';
+let tab = 'missions';
 let toastTimer;
 let lastFrame = 0;
 let lastMini = 0;
@@ -156,6 +156,7 @@ function connect(credentials) {
   $('#toggle-panel').setAttribute('aria-expanded','true');
   $('#room-code').textContent = '입장 코드 ' + session.code + ' ⧉';
   setStatus('연결 중');
+  renderMissionSummary();
   const source = new EventSource('/api/events?' + new URLSearchParams({code:session.code,key:session.key}));
   stream = source;
   source.onopen = () => setStatus('작전 연결됨',true);
@@ -170,7 +171,7 @@ function connect(credentials) {
     state = JSON.parse(event.data);
     syncPlayers(state.players);
     $('#player-count').textContent = state.players.length + '명 접속';
-    if (tab !== 'journal') renderFeed();
+    if (tab !== 'journal' && tab !== 'missions') renderFeed();
   });
   source.addEventListener('positions',event => {
     for (const player of JSON.parse(event.data)) {
@@ -181,7 +182,8 @@ function connect(credentials) {
   source.addEventListener('journal',event => {
     journal = JSON.parse(event.data);
     updateMarkers();
-    if (tab === 'journal') renderFeed();
+    renderMissionSummary();
+    if (tab === 'journal' || tab === 'missions') renderFeed();
   });
   source.addEventListener('respawn',event => {
     const life = JSON.parse(event.data);
@@ -194,7 +196,7 @@ function connect(credentials) {
     map.focus();
     toast('위험 구역에 닿았어요. 출발 기지에서 부활했습니다. 단서와 잠금을 다시 해결하세요.');
   });
-  setTab(session.teacher ? 'activity' : 'journal');
+  setTab(session.teacher ? 'activity' : 'missions');
 }
 function reset() {
   stream?.close();
@@ -207,6 +209,7 @@ function reset() {
   keys.clear();
   state = {players:[],messages:[],activity:[]};
   journal = fallbackJournal();
+  renderMissionSummary();
   syncPlayers([]);
   updateMarkers();
   sessionStorage.removeItem('atlas-room');
@@ -224,7 +227,91 @@ function setTab(next) {
     button.classList.toggle('active',button.dataset.tab === tab);
     button.setAttribute('aria-pressed',String(button.dataset.tab === tab));
   }
+  $('#feed').scrollTop = 0;
   renderFeed();
+}
+function unlockedMissions() {
+  return journal.filter(record => record.done).length;
+}
+function renderMissionSummary() {
+  const completed = unlockedMissions();
+  $('#mission-total').textContent = completed + ' / ' + missions.length + ' 완료';
+  const lights = missions.map((mission, index) => {
+    const light = node('span', '', 'mission-light');
+    light.classList.toggle('lit', journal[index].done);
+    light.title = mission.title + (journal[index].done ? ' · 완료' : ' · 미완료');
+    return light;
+  });
+  $('#mission-lights').replaceChildren(...lights);
+}
+function missionCards() {
+  return missions.map((mission, index) => {
+    const record = journal[index];
+    const notes = Object.keys(record.notes).length;
+    const tokens = Object.keys(record.tokens).length;
+    const routes = Object.keys(record.routes).length;
+    const ready = tokens === mission.sites.length && routes === mission.consoles.length;
+    const status = record.done ? '완료' : ready ? '금고 준비' : notes || routes || tokens ? '탐험 중' : '미완료';
+
+    const card = node('li', '', 'mission-card');
+    card.dataset.index = index;
+    card.classList.toggle('complete', record.done);
+    card.classList.toggle('ready', ready && !record.done);
+    card.style.setProperty('--zone', mission.color);
+
+    const heading = node('div', '', 'mission-card-heading');
+    const icon = node('span', mission.icon, 'mission-icon');
+    icon.setAttribute('aria-hidden', 'true');
+    const title = node('div', '', 'mission-name');
+    title.append(node('span', mission.region, 'mission-zone'), node('h3', mission.title));
+    const badge = node('span', '', 'mission-status');
+    const indicator = node('span', record.done ? '✓' : '', 'status-light');
+    indicator.setAttribute('aria-hidden', 'true');
+    badge.append(indicator, document.createTextNode(status));
+    heading.append(icon, title, badge);
+
+    const steps = node('ul', '', 'mission-steps');
+    for (const [label, count, total] of [
+      ['문서', notes, mission.sites.length], ['표식', tokens, mission.sites.length],
+      ['안내판', routes, mission.consoles.length]
+    ]) {
+      const checked = count === total;
+      const step = node('li', '', checked ? 'checked' : '');
+      step.append(node('span', label), node('strong', count + '/' + total));
+      if (checked) {
+        const mark = node('span', '✓', 'step-check');
+        mark.setAttribute('aria-hidden', 'true');
+        step.append(mark);
+      }
+      steps.append(step);
+    }
+    const pendingLock = mission.sites.find(site => record.notes[site.id] && !record.tokens[site.id]);
+    const missingNote = mission.sites.find(site => !record.notes[site.id]);
+    let objective = '구역의 순서 안내판을 찾아 조사하세요.';
+    if (record.done) objective = '게이트 표식을 확보했어요.';
+    else if (ready) objective = '안내판 순서로 표식을 조합해 금고를 여세요.';
+    else if (pendingLock) objective = pendingLock.name + ' 자물쇠를 풀어 표식을 얻으세요.';
+    else if (missingNote) objective = missingNote.name + '의 단서 문서를 찾으세요.';
+    card.append(heading, steps, node('p', objective, 'mission-objective'));
+    return card;
+  });
+}
+function missionOverview() {
+  const list = node('ol', '', 'mission-list');
+  list.append(...missionCards());
+
+  const ready = unlockedMissions() === missions.length;
+  const gate = node('section', '', ready ? 'gate-card ready' : 'gate-card');
+  const titleRow = node('div', '', 'gate-heading');
+  const title = node('h3', '최종 탈출 게이트');
+  const badge = node('span', '', 'mission-status');
+  const indicator = node('span', ready ? '→' : '', 'status-light');
+  indicator.setAttribute('aria-hidden', 'true');
+  badge.append(indicator, document.createTextNode(ready ? '도전 가능' : '잠김'));
+  titleRow.append(title, badge);
+  const objective = ready ? '출발 기지 남쪽 게이트에서 표식 3개로 마지막 암호를 푸세요.' : '세 구역의 금고를 열어 게이트 표식을 모으세요.';
+  gate.append(titleRow, node('p', objective, 'mission-objective'));
+  return [list, gate];
 }
 function notebook() {
   return missions.map((mission,index) => {
@@ -247,8 +334,12 @@ function notebook() {
 }
 function renderFeed() {
   const feed = $('#feed');
+  feed.setAttribute('aria-live', tab === 'activity' || tab === 'chat' ? 'polite' : 'off');
   const rows = [];
-  if (tab === 'journal') {
+  const scrollPosition = feed.scrollTop;
+  if (tab === 'missions') {
+    rows.push(...missionOverview());
+  } else if (tab === 'journal') {
     const open = new Set([...feed.querySelectorAll('details[open]')].map(item=>item.dataset.index));
     const completed = journal.filter(record=>record.done).length;
     const note = completed === missions.length && completed ? '세 구역 해제 완료 · 출발 기지 남쪽 탈출 게이트로 이동하세요.' :
@@ -282,7 +373,7 @@ function renderFeed() {
   }
   const blank = {activity:'탐험대가 미션을 완료하면 여기에 표시돼요.',chat:'단서를 찾으면 탐험대와 공유해 보세요.',players:'접속한 탐험대가 여기에 표시돼요.'};
   feed.replaceChildren(...(rows.length ? rows : [node('p',blank[tab],'feed-intro')]));
-  if (tab === 'chat') feed.scrollTop = feed.scrollHeight;
+  feed.scrollTop = tab === 'chat' ? feed.scrollHeight : scrollPosition;
   $('#chat').hidden = tab !== 'chat' || !session;
 }
 function setupMarkers() {
@@ -291,7 +382,7 @@ function setupMarkers() {
     const button = node('button','','marker '+kind);
     button.append(node('b',glyphs[kind]),node('span',label));
     button.setAttribute('aria-label',label);
-    const item = {...point,kind,label,index,site,fragment,button};
+    const item = {...point,kind,label,index,site,fragment,button,glyph:glyphs[kind]};
     button.onclick = () => approach(item);
     if (missions[index]) button.style.setProperty('--zone',missions[index].color);
     markers.push(item);
@@ -313,7 +404,10 @@ function updateMarkers() {
     const record = journal[index];
     const isComplete = kind === 'vault' ? record?.done : kind === 'site' ? record?.tokens[site.id] :
       kind === 'note' ? record?.notes[site.id] : kind === 'route' ? record?.routes[item.fragment] : journal.length && journal.every(entry=>entry.done);
-    button.classList.toggle('done',Boolean(isComplete));
+    const done = Boolean(isComplete) && kind !== 'exit';
+    button.classList.toggle('done',done);
+    button.classList.toggle('gate-ready',Boolean(isComplete) && kind === 'exit');
+    button.firstElementChild.textContent = done ? '✓' : item.glyph;
   }
 }
 function approach(item) {
